@@ -7,9 +7,10 @@ class SketchPadObject{
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     //private point: Array<number>;
-
     private paths: Array<Path>
-    private isDrawing: boolean
+    private isDrawing: boolean;
+    public undoBtn: HTMLButtonElement;
+
     constructor(container: HTMLElement, size=400){
         this.canvas = document.createElement("canvas")
         this.canvas.width = size;
@@ -21,10 +22,18 @@ class SketchPadObject{
         this.paths = [];
 
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+        //Create undo btn
+        this.undoBtn = document.createElement("button")
+        this.undoBtn.innerText = "Undo"
+        container.appendChild(this.undoBtn)
 
         this.isDrawing = false;
 
         this.#addEventListeners();
+
+        this.#redraw()
+
+        
     }
 
     #addEventListeners(){
@@ -54,6 +63,11 @@ class SketchPadObject{
             const loc = e.touches[0]
             this.#handleMouseUp()
         }
+
+        this.undoBtn.onclick = ()=>{
+            this.paths.pop();
+            this.#redraw();
+        }
     }
 
     private getMouse(e: any){
@@ -68,6 +82,13 @@ class SketchPadObject{
     #redraw(){
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         draw.paths(this.ctx, this.paths);
+        if(this.paths.length > 0){
+            this.undoBtn.disabled = false
+        }else{
+            this.undoBtn.disabled = true;
+        }
+
+       
     }
 
     #handleMouseDown(e: Events){

@@ -16,8 +16,13 @@ class SketchPadObject {
         container.appendChild(this.canvas);
         this.paths = [];
         this.ctx = this.canvas.getContext("2d");
+        //Create undo btn
+        this.undoBtn = document.createElement("button");
+        this.undoBtn.innerText = "Undo";
+        container.appendChild(this.undoBtn);
         this.isDrawing = false;
         __classPrivateFieldGet(this, _SketchPadObject_instances, "m", _SketchPadObject_addEventListeners).call(this);
+        __classPrivateFieldGet(this, _SketchPadObject_instances, "m", _SketchPadObject_redraw).call(this);
     }
     getMouse(e) {
         const rect = this.canvas.getBoundingClientRect();
@@ -49,9 +54,19 @@ _SketchPadObject_instances = new WeakSet(), _SketchPadObject_addEventListeners =
         const loc = e.touches[0];
         __classPrivateFieldGet(this, _SketchPadObject_instances, "m", _SketchPadObject_handleMouseUp).call(this);
     };
+    this.undoBtn.onclick = () => {
+        this.paths.pop();
+        __classPrivateFieldGet(this, _SketchPadObject_instances, "m", _SketchPadObject_redraw).call(this);
+    };
 }, _SketchPadObject_redraw = function _SketchPadObject_redraw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     draw.paths(this.ctx, this.paths);
+    if (this.paths.length > 0) {
+        this.undoBtn.disabled = false;
+    }
+    else {
+        this.undoBtn.disabled = true;
+    }
 }, _SketchPadObject_handleMouseDown = function _SketchPadObject_handleMouseDown(e) {
     const mouse = this.getMouse(e);
     this.paths.push([mouse]);
